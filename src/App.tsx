@@ -32,8 +32,13 @@ function AdminRoute() {
   const [checked, setChecked] = useState(false);
 
   useEffect(() => {
-    const unsub = onAuthStateChanged(auth, (u) => { setUser(u); setChecked(true); });
-    return () => unsub();
+    try {
+      const unsub = onAuthStateChanged(auth, (u) => { setUser(u); setChecked(true); });
+      return () => unsub();
+    } catch {
+      // Firebase 미설정 환경 (플레이스홀더 키) — 로그인 화면 표시
+      setChecked(true);
+    }
   }, []);
 
   if (!checked) return (
