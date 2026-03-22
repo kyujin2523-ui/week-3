@@ -34,14 +34,22 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-export const db   = getFirestore(app);
-export const auth = getAuth(app);
+export const db = getFirestore(app);
+
+// Auth 초기화 — API 키가 유효하지 않으면 catch (플레이스홀더 키 사용 시)
+let _auth: ReturnType<typeof getAuth>;
+try {
+  _auth = getAuth(app);
+} catch {
+  // 플레이스홀더 환경변수일 때 crash 방지 — 로그인 시도 시 에러 표시됨
+  _auth = {} as ReturnType<typeof getAuth>;
+}
+export const auth = _auth;
 
 // 로컬 에뮬레이터 연결 (개발 환경에서만)
 if (import.meta.env.DEV) {
-  // 이미 연결된 경우 중복 연결 방지
   try {
-    connectFirestoreEmulator(db,   'localhost', 8080);
+    connectFirestoreEmulator(db, 'localhost', 8080);
     connectAuthEmulator(auth, 'http://localhost:9099', { disableWarnings: true });
   } catch {
     // 이미 연결된 경우 무시
