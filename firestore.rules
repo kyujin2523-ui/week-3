@@ -1,0 +1,48 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── 로컬 에뮬레이터: 전체 허용 (프로덕션에서 제거)
+    match /{document=**} {
+      allow read, write: if true;
+    }
+
+    // ── products: 누구나 읽기, 쓰기는 관리자만
+    match /products/{id} {
+      allow read: if true;
+      allow write: if request.auth != null && isAdmin();
+    }
+
+    // ── hosts: 해당 호스트 본인만 읽기, 쓰기는 관리자만
+    match /hosts/{hostId} {
+      allow read: if request.auth != null &&
+                    (request.auth.uid == hostId || isAdmin());
+      allow write: if request.auth != null && isAdmin();
+    }
+
+    // ── orders: 해당 호스트 또는 관리자만 읽기
+    match /orders/{orderId} {
+      allow read: if request.auth != null &&
+                    (resource.data.hostId == request.auth.uid || isAdmin());
+      allow create: if false; // Functions에서만 생성
+      allow update: if request.auth != null && isAdmin();
+    }
+
+    // ── settlements: 해당 호스트 또는 관리자
+    match /settlements/{id} {
+      allow read: if request.auth != null &&
+                    (resource.data.hostId == request.auth.uid || isAdmin());
+      allow write: if request.auth != null && isAdmin();
+    }
+
+    // ── 내부 메타데이터: 관리자만
+    match /_meta/{id} {
+      allow read, write: if request.auth != null && isAdmin();
+    }
+
+    // 관리자 UID 체크 (Firebase Auth Custom Claims 또는 env 기반)
+    function isAdmin() {
+      return request.auth.token.admin == true;
+    }
+  }
+}

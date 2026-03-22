@@ -1,0 +1,31 @@
+# 환경변수 (절대 커밋 금지)
+.env.local
+.env.*.local
+functions/.env
+functions/.env.*
+
+# 빌드 결과물
+dist/
+functions/lib/
+
+# 에뮬레이터 데이터
+emulator-data/
+.firebase/
+firebase-debug.log
+firestore-debug.log
+ui-debug.log
+
+# Node
+node_modules/
+functions/node_modules/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Claude Code 로컬 설정
+.claude/settings.local.json
+
+# IDE
+.vscode/
+.idea/
